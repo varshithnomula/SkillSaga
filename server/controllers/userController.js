@@ -1,7 +1,7 @@
 import User from "../models/user.js";
 import stripe from "stripe";
 import { Purchase } from "../models/Purchase.js";
-import Course from "../models/Coures.js";
+import Course from "../models/Course.js";
 import { CourseProgress } from "../models/courseProgress.js";
 
 //Get user Data
@@ -130,7 +130,7 @@ export const getUserCourseProgress = async (req, res) => {
 export const addUserRating = async (req, res) => {
   const userId = req.auth.userId;
   const { courseId, rating } = req.body;
-  if (!courseId || !userId || rating || rating < 1 || rating > 5) {
+  if (!courseId || !userId || !rating || rating < 1 || rating > 5) { // Fixed condition - added ! before rating
     return res.json({ success: false, message: "InValid Details" });
   }
   try {
