@@ -69,7 +69,9 @@ export const stripeWebhooks = async (request, response) => {
     );
   } catch (err) {
     response.status(400).send(`Webhook Error: ${err.message}`);
+    return; // Add this return statement to exit the function on error
   }
+  
   // Handle the event
   switch (event.type) {
     case "payment_intent.succeeded":{
