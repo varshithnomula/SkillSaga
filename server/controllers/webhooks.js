@@ -30,7 +30,7 @@ export const clerkWebhooks =async()=>{
 
             case 'user.update':{
                 consuserData={
-                    email:data.email_address[0].email_address,
+                    email:data.email_addressess[0].email_address,
                     name:data.first_name+" "+data.last_name,
                     imageUrl:data.image_url,
                 }
