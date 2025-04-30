@@ -1,19 +1,38 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AppContext'
-import { assets, dummyDashboardData } from '../../assets/assets'
+import { assets } from '../../assets/assets'
 import Loading from '../../components/students/Loading'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const DashBoard = () => {
 
-  const {currency}=useContext(AppContext)
+
+  const {currency,backendUrl,isEducator,getToken}=useContext(AppContext)
   const [dashBoardData,setdashBoardData]=useState(null)
-  const fetchDashboardData =async ()=>{
-    setdashBoardData(dummyDashboardData)
+  const fetchDashboardData = async () => {
+    try {
+      const token = await getToken()
+      const {data} = await axios.get(backendUrl + '/api/educator/dashboard', {
+        headers: {Authorization: `Bearer ${token}`}
+      })
+
+      if(data.success) {
+        setdashBoardData(data.dashBoardData)
+      } else {
+        toast.error(data.message)
+      }
+      
+    } catch (error) {
+      toast.error(error.message) 
+    }
   }
 
   useEffect(()=>{
+    if(isEducator){
     fetchDashboardData()
-  },[])
+    }
+  },[isEducator])
 
   return dashBoardData ? (
     <div className='min-h-screen flex flex-col items-start justify-between gap-8 md:p-8 md:pb-0 p-4 pt-8 pb-0'>
@@ -53,7 +72,7 @@ const DashBoard = () => {
 
               <thead className="text-gray-900 border-b border-gray-500/20 text-sm text-left">
                 <tr>
-                  <th className="px-4 Ry-3 font-semibold text-center hidden sm:table-cell">#</th>
+                  <th className="px-4 py-3 font-semibold text-center hidden sm:table-cell">#</th>
                   <th className="px-4 py-3 font-semibold">Student Name</th>
                   <th className="px-4 py-3 font-semibold">Course Title</th>
                 </tr>

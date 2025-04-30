@@ -1,11 +1,24 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import CourseCard from './CourseCard'
+import Loading from './Loading' // Add this import
 
 const CourseSection = () => {
+  const { allCourses, userData } = useContext(AppContext) // Add userData to destructuring
+  const [isLoading, setIsLoading] = useState(true);
 
-  const {allCourses} =useContext(AppContext)
+  useEffect(() => {
+    if (userData === undefined) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [userData]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <div className='py-16 md:px-40 px-8'>
       <h2 className='text-3x1 font-medium text-gray-800"'>Learn from the best</h2>
@@ -27,6 +40,5 @@ const CourseSection = () => {
     </div>
   )
 }
-
 
 export default CourseSection

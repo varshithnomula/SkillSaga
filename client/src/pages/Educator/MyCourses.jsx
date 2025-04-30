@@ -1,23 +1,32 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AppContext'
 import Loading from '../../components/students/Loading'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const MyCourses = () => {
+  const {currency, allCourses,backendUrl,isEducator,getToken} = useContext(AppContext)
+  const [courses, setCourses] = useState(null)
 
-  const {currency,allCourses}=useContext(AppContext)
+  const fetchEducatorCourses = async () => {
+    try{
+      const token=await getToken()
+      const {data}=await axios.get(backendUrl+'/api/educator/courses',{header:{Authorization:`Bearer ${token}`}})
 
-  const [courses,setCourses]=useState(null)
+      data.success && setCourses(data.courses)
 
-  const fecthEducatorCourses= async()=>{
-    setCourses(allCourses)
+    }catch(error){
+      toast.error(error.message)
+    }
   }
 
-  useEffect(()=>{
-    fecthEducatorCourses()
-  })
+  useEffect(() => {
+    if(isEducator){
+    fetchEducatorCourses()
+    }
+  }, [isEducator])
 
-
-  return courses? (
+  return courses ? (
     <div className='h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0'>
 
       <div className='w-full'>
@@ -39,19 +48,19 @@ const MyCourses = () => {
 
             <tbody className="text-sm text-gray-500">
               {courses.map((course) => (
-              <tr key={course._id} className="border-b border-gray-500/20">
-                <td className="md:px-4 p1-2 md:p1-4 py-3 flex items-center space-x-3 truncate">
-                  <img src={course.courseThumbnail} alt="Course Image" className="w-16" />
-                  <span className="truncate hidden md:block">{course.courseTitle}</span>
-                </td>
-                <td className="px-4 py-3">
-                  {currency} {Math.floor(course.enrolledStudents.length * (course.coursePrice-course.discount *course.coursePrice / 100))}
-                </td>
-                <td className="px-4 py-3">{course.enrolledStudents.length}</td>
-                <td className="px-4 py-3">
-                  {new Date(course.createdAt).toLocaleDateString()}
-                </td>
-              </tr>
+                <tr key={course._id} className="border-b border-gray-500/20">
+                  <td className="md:px-4 p1-2 md:p1-4 py-3 flex items-center space-x-3 truncate">
+                    <img src={course.courseThumbnail} alt="Course Image" className="w-16" />
+                    <span className="truncate hidden md:block">{course.courseTitle}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {currency} {Math.floor((course.enrolledStudents?.length || 0) * (course.coursePrice - (course.discount * course.coursePrice / 100)))}
+                  </td>
+                  <td className="px-4 py-3">{course.enrolledStudents?.length || 0}</td>
+                  <td className="px-4 py-3">
+                    {new Date(course.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
               ))}
             </tbody>
             
@@ -62,7 +71,7 @@ const MyCourses = () => {
       </div>
 
     </div>
-  ):<Loading/>
+  ) : <Loading/>
 }
 
 export default MyCourses
